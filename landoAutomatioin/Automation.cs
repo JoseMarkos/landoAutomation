@@ -9,11 +9,15 @@ namespace landoAutomatioin
     {
         private string landoBoilerplatePath;
         private string landoBoilerplateJoomla;
+
         private static string currentDirectoryPath = Directory.GetCurrentDirectory();
-        public string siteName { get; private set; }
-        // private string landoFile = currentDirectoryPath + "/" + siteName + "/.lando.yml";
-        private string landoFile = currentDirectoryPath + @"/.lando.yml";
+        public static string siteName { get; private set; }
+        public string siteRepoPath { get; private set; }
+
+        private string landoFile = currentDirectoryPath + @"/" + siteName + @"/.lando.yml";
+
         private StringBuilder stringBuilder = new StringBuilder();
+        private StringBuilder copyLandoBoilerplateScript = new StringBuilder();
         
 
         public Automation()
@@ -22,14 +26,9 @@ namespace landoAutomatioin
             landoBoilerplateJoomla = landoBoilerplatePath + "joomla";
         }
 
-        private void CreateSiteDir()
-        {
-            Directory.CreateDirectory(siteName);
-        }
-
         private void ExecuteBashScript()
         {
-            string landoAutomationScript = "landoAutomation.sh";
+            string landoAutomationScript = "copyLandoBoilerplate.sh";
 
             ProcessStartInfo info = new ProcessStartInfo(landoAutomationScript);
             Process p = Process.Start(info);
@@ -80,6 +79,23 @@ namespace landoAutomatioin
             }
         }
 
+        private void WriteCopyLandoBoilerplateScript()
+        {
+            copyLandoBoilerplateScript.AppendLine("#!/bin/bash");
+            copyLandoBoilerplateScript.AppendLine("cp -rf ~/github/lando-boilerplates-for-joomla-wordpress-and-prestashop/joomla .");
+            copyLandoBoilerplateScript.AppendLine("chwon -Rf dev:dev joomla");
+            copyLandoBoilerplateScript.AppendLine("mv joomla " + siteName);
+            copyLandoBoilerplateScript.AppendLine("cp -rf " + siteRepoPath + " " + siteName + "/www");
+            copyLandoBoilerplateScript.AppendLine("mv " + siteName + "/www/configuration.onl.php " + siteName + "/www/configuration.php");
+            copyLandoBoilerplateScript.AppendLine("mv " + siteName + "/www/htaccess.txt " + siteName + "/www/.htaccess");
+            copyLandoBoilerplateScript.AppendLine(siteName + "/ lando start");
+
+            using (StreamWriter stream = new StreamWriter(currentDirectoryPath + "\\copyLandoBoilerplate.sh"))
+            {
+                stream.Write(copyLandoBoilerplateScript);
+            }
+        }
+
         private void CopyJoomlaDir()
         {
             if (Directory.Exists(landoBoilerplateJoomla))
@@ -108,6 +124,12 @@ namespace landoAutomatioin
             siteName = Console.ReadLine();
         }
 
+        public void AskRepoSitePath(string msg = "What is the repository path?")
+        {
+            Console.WriteLine(msg);
+            siteRepoPath = Console.ReadLine();
+        }
+
         private void WriteLandoFile()
         {
             using (StreamWriter stream = new StreamWriter(landoFile))
@@ -116,20 +138,15 @@ namespace landoAutomatioin
             }
         }
 
+
         public void Start()
         {
             AskSiteName();
-            // tmp
-            CreateSiteDir();
-            // end tmp
-
-            //ExecuteBashScript();
+            AskRepoSitePath();
+            WriteCopyLandoBoilerplateScript();
+            ExecuteBashScript();
             EditLandoFile();
             WriteLandoFile();
-
-            //CreateSiteDir();
-            //CopyJoomlaDir();
-
         }
     }
 }
