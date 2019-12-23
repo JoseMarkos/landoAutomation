@@ -90,6 +90,8 @@ namespace landoAutomatioin
             copyLandoBoilerplateScript.AppendLine("mv " + siteName + "/www/htaccess.txt " + siteName + "/www/.htaccess");
             copyLandoBoilerplateScript.AppendLine(siteName + "/ lando start");
 
+            FileStream _ = File.Create(currentDirectoryPath + "\\copyLandoBoilerplate.sh");
+
             using (StreamWriter stream = new StreamWriter(currentDirectoryPath + "\\copyLandoBoilerplate.sh"))
             {
                 stream.Write(copyLandoBoilerplateScript);
