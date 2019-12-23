@@ -9,8 +9,10 @@ namespace landoAutomatioin
     {
         private string landoBoilerplatePath;
         private string landoBoilerplateJoomla;
-        private string currentDirectoryPath = Directory.GetCurrentDirectory();
+        private static string currentDirectoryPath = Directory.GetCurrentDirectory();
         public string siteName { get; private set; }
+        // private string landoFile = currentDirectoryPath + "/" + siteName + "/.lando.yml";
+        private string landoFile = currentDirectoryPath + @"/.lando.yml";
         private StringBuilder stringBuilder = new StringBuilder();
         
 
@@ -36,8 +38,7 @@ namespace landoAutomatioin
 
         private void EditLandoFile()
         {
-            // string landoFile = currentDirectoryPath + "/" + siteName + "/.lando.yml";
-            string landoFile = currentDirectoryPath + @"/.lando.yml";
+
             Console.WriteLine(landoFile);
 
             string line;
@@ -74,7 +75,7 @@ namespace landoAutomatioin
                         newLine = prevLine + siteName + restLine;
                     }
 
-                    stringBuilder.Append(newLine);
+                    stringBuilder.AppendLine(newLine);
                 }
             }
         }
@@ -107,6 +108,14 @@ namespace landoAutomatioin
             siteName = Console.ReadLine();
         }
 
+        private void WriteLandoFile()
+        {
+            using (StreamWriter stream = new StreamWriter(landoFile))
+            {
+                stream.Write(stringBuilder);
+            }
+        }
+
         public void Start()
         {
             AskSiteName();
@@ -116,7 +125,7 @@ namespace landoAutomatioin
 
             //ExecuteBashScript();
             EditLandoFile();
-
+            WriteLandoFile();
 
             //CreateSiteDir();
             //CopyJoomlaDir();
