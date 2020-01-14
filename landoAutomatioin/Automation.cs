@@ -18,7 +18,6 @@ namespace landoAutomatioin
 
         private StringBuilder stringBuilder = new StringBuilder();
         private StringBuilder copyLandoBoilerplateScript = new StringBuilder();
-        
 
         public Automation()
         {
@@ -37,8 +36,6 @@ namespace landoAutomatioin
 
         private void EditLandoFile()
         {
-
-            Console.WriteLine(landoFile);
 
             string line;
             string stringToReplace = "$replace-with-a-name$";
@@ -90,7 +87,7 @@ namespace landoAutomatioin
             copyLandoBoilerplateScript.AppendLine("sudo mv " + siteName + "/www/htaccess.txt " + siteName + "/www/.htaccess");
 
             FileStream _ = File.Create(currentDirectoryPath + "/copyLandoBoilerplate.sh");
-	    _.Close();
+	        _.Close();
 
             using (StreamWriter stream = new StreamWriter(currentDirectoryPath + "/copyLandoBoilerplate.sh"))
             {
@@ -123,6 +120,7 @@ namespace landoAutomatioin
         public void AskSiteName(string msg = "What is the site name?")
         {
             Console.WriteLine(msg);
+
             siteName = Console.ReadLine();
             landoFile = currentDirectoryPath + @"/" + siteName + @"/.lando.yml";
         }
