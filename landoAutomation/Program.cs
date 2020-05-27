@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace landoAutomatioin
+namespace landoAutomation
 {
     sealed class Program
     {
@@ -12,7 +12,6 @@ namespace landoAutomatioin
         static void Main(string[] args)
         {
             Automation automation = GetAutomation();
-
             automation.Start();
         }
     }
