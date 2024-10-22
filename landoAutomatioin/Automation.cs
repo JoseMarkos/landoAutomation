@@ -9,15 +9,14 @@ namespace landoAutomatioin
     {
         private string landoBoilerplatePath;
         private string landoBoilerplateJoomla;
-
+        private string landoBasePath = "~/github/lando-boilerplates-for-joomla-wordpress-and-prestashop/";
+        private string recipe;
         private static string currentDirectoryPath = Directory.GetCurrentDirectory();
         public static string siteName { get; private set; }
         public string siteRepoPath { get; private set; }
-
         private string landoFile = String.Empty;
-
         private StringBuilder stringBuilder = new StringBuilder();
-        private StringBuilder copyLandoBoilerplateScript = new StringBuilder();
+        private StringBuilder landoScript = new StringBuilder();
 
         public Automation()
         {
@@ -27,16 +26,14 @@ namespace landoAutomatioin
 
         private void ExecuteBashScript()
         {
-            string landoAutomationScript = "copyLandoBoilerplate.sh";
-
-            ProcessStartInfo info = new ProcessStartInfo(landoAutomationScript, "sudo ./");
-            Process p = Process.Start(info);
+            var landoAutomationScript = "copyLandoBoilerplate.sh";
+            var info = new ProcessStartInfo(landoAutomationScript, " ./");
+            var p = Process.Start(info);
             p.WaitForExit();
         }
 
         private void EditLandoFile()
         {
-
             string line;
             string stringToReplace = "$replace-with-a-name$";
 
@@ -45,7 +42,6 @@ namespace landoAutomatioin
                 while ((line = stream.ReadLine()) != null)
                 {
                     string newLine = line;
-
                     int count = 0;
 
                     while (count < 4)
@@ -56,18 +52,15 @@ namespace landoAutomatioin
                         }
 
                         ReplaceString();
-
                         count++;
                     }
 
                     void ReplaceString()
                     {
-                        int replaceIndex = newLine.IndexOf(stringToReplace);
-                        int restContentIndex = replaceIndex + 21;
-
-                        string prevLine = newLine.Substring(0, replaceIndex);
-                        string restLine = newLine.Substring(restContentIndex, newLine.Length - restContentIndex);
-
+                        var replaceIndex = newLine.IndexOf(stringToReplace);
+                        var restContentIndex = replaceIndex + 21;
+                        var prevLine = newLine.Substring(0, replaceIndex);
+                        var restLine = newLine.Substring(restContentIndex, newLine.Length - restContentIndex);
                         newLine = prevLine + siteName + restLine;
                     }
 
@@ -76,22 +69,19 @@ namespace landoAutomatioin
             }
         }
 
-        private void WriteCopyLandoBoilerplateScript()
+        private void WriteLandoScript()
         {
-            copyLandoBoilerplateScript.AppendLine("#!/bin/bash");
-            copyLandoBoilerplateScript.AppendLine("sudo cp -rf ~/github/lando-boilerplates-for-joomla-wordpress-and-prestashop/joomla .");
-            copyLandoBoilerplateScript.AppendLine("sudo chown -Rf dev:dev joomla");
-            copyLandoBoilerplateScript.AppendLine("sudo mv joomla " + siteName);
-            copyLandoBoilerplateScript.AppendLine("sudo cp -rf " + siteRepoPath + "/* " + siteName + "/www");
-            copyLandoBoilerplateScript.AppendLine("sudo mv " + siteName + "/www/configuration.onl.php " + siteName + "/www/configuration.php");
-            copyLandoBoilerplateScript.AppendLine("sudo mv " + siteName + "/www/htaccess.txt " + siteName + "/www/.htaccess");
-
-            FileStream _ = File.Create(currentDirectoryPath + "/copyLandoBoilerplate.sh");
+            landoScript.AppendLine("#!/bin/bash");
+            landoScript.AppendLine("cp -rf " + landoBasePath + recipe + " .");
+            landoScript.AppendLine("chown -Rf josebailon:josebailon " + recipe);
+            landoScript.AppendLine("mv " + recipe + " " + siteName);
+            var script = currentDirectoryPath + "/copyLandoBoilerplate.sh";
+            FileStream _ = File.Create(script);
 	        _.Close();
 
-            using (StreamWriter stream = new StreamWriter(currentDirectoryPath + "/copyLandoBoilerplate.sh"))
+            using (StreamWriter stream = new StreamWriter(script))
             {
-                stream.Write(copyLandoBoilerplateScript);
+                stream.Write(landoScript);
             }
         }
 
@@ -100,7 +90,6 @@ namespace landoAutomatioin
             if (Directory.Exists(landoBoilerplateJoomla))
             {
                 string[] files = Directory.GetFiles(landoBoilerplateJoomla);
-
                 // Copy the files and overwrite destination files if they already exist.
                 foreach (string s in files)
                 {
@@ -117,19 +106,23 @@ namespace landoAutomatioin
             }
         }
 
-        public void AskSiteName(string msg = "What is the site name?")
+        private void AskSiteName()
         {
-            Console.WriteLine(msg);
-
+            Console.WriteLine("What is the site name?");
             siteName = Console.ReadLine();
             landoFile = currentDirectoryPath + @"/" + siteName + @"/.lando.yml";
         }
 
-        public void AskRepoSitePath(string msg = "What is the repository path?")
+        private void AskRepoSitePath()
         {
-            Console.WriteLine(msg);
-	    
+            Console.WriteLine("What is the repository path?");
             siteRepoPath = Console.ReadLine();
+        }
+        
+        private void AskRecipe()
+        {
+            Console.WriteLine("What is the recipe name? (joomla, wordpress, lamp, laravel)");
+            recipe = Console.ReadLine();
         }
 
         private void WriteLandoFile()
@@ -145,7 +138,8 @@ namespace landoAutomatioin
         {
             AskSiteName();
             AskRepoSitePath();
-            WriteCopyLandoBoilerplateScript();
+            AskRecipe();
+            WriteLandoScript();
             ExecuteBashScript();
             EditLandoFile();
             WriteLandoFile();
